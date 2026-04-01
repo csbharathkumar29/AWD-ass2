@@ -1,0 +1,153 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Music Player</title>
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #121212;
+  color: white;
+}
+header {
+  text-align: center;
+  padding: 15px;
+  background: #1db954;
+}
+.container {
+  padding: 20px;
+}
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+input, select {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+.card {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+.card:hover {
+  transform: scale(1.05);
+}
+button {
+  margin-top: 10px;
+  padding: 8px;
+  background: #1db954;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+.now-playing {
+  margin-top: 20px;
+  padding: 15px;
+  background: #282828;
+  border-radius: 10px;
+}
+</style>
+</head>
+<body>
+<header>
+  <h2>🎵 Music Player</h2>
+</header>
+<div class="container">
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search song">
+    <select id="genreFilter">
+      <option value="">All Genres</option>
+      <option value="Pop">Pop</option>
+      <option value="Melody">Melody</option>
+      <option value="Rock">Rock</option>
+    </select>
+
+    <select id="artistFilter">
+      <option value="">All Artists</option>
+      <option value="Anirudh">Anirudh</option>
+      <option value="AR Rahman">AR Rahman</option>
+    </select>
+  </div>
+  <div class="grid" id="songList"></div>
+  <div class="now-playing" id="nowPlaying">
+    <h3>Now Playing: None</h3>
+  </div>
+</div>
+<script>
+const songs = [
+  {id:1,title:"Arabic Kuthu",artist:"Anirudh",album:"Beast",genre:"Pop",duration:4,favorite:false,playCount:0},
+  {id:2,title:"Munbe Vaa",artist:"AR Rahman",album:"Sillunu Oru Kadhal",genre:"Melody",duration:5,favorite:false,playCount:0},
+  {id:3,title:"Vaathi Coming",artist:"Anirudh",album:"Master",genre:"Rock",duration:4,favorite:false,playCount:0},
+  {id:4,title:"Nenjukulle",artist:"AR Rahman",album:"Kadal",genre:"Melody",duration:5,favorite:false,playCount:0},
+  {id:5,title:"Thalapathi Kacheri",artist:"Anirudh",album:"Jana Nayagan",genre:"Melody",duration:5,favorite:false,playCount:0},
+  {id:6,title:"Why This Kolaveri",artist:"Anirudh",album:"3",genre:"Pop",duration:4,favorite:false,playCount:0},
+  {id:7,title:"Rowdy Baby",artist:"Dhanush",album:"Maari 2",genre:"Pop",duration:4,favorite:false,playCount:0},
+  {id:8,title:"Aaluma Doluma",artist:"Anirudh",album:"Vedalam",genre:"Rock",duration:4,favorite:false,playCount:0},
+  {id:9,title:"Enna Solla Pogirai",artist:"Yuvan",album:"Kandukondain",genre:"Melody",duration:5,favorite:false,playCount:0},
+  {id:10,title:"Google Google",artist:"Harris Jayaraj",album:"Thuppakki",genre:"Pop",duration:4,favorite:false,playCount:0},
+  {id:11,title:"Selfie Pulla",artist:"Anirudh",album:"Kaththi",genre:"Pop",duration:4,favorite:false,playCount:0},
+  {id:12,title:"Vaathi Raid",artist:"Anirudh",album:"Master",genre:"Rock",duration:4,favorite:false,playCount:0},
+  {id:13,title:"Tum Tum",artist:"Thaman",album:"Enemy",genre:"Pop",duration:4,favorite:false,playCount:0},
+  {id:14,title:"Enjoy Enjaami",artist:"Dhee",album:"Single",genre:"Pop",duration:4,favorite:false,playCount:0},
+  {id:15,title:"Kutty Story",artist:"Anirudh",album:"Master",genre:"Melody",duration:4,favorite:false,playCount:0},
+  {id:16,title:"Ranjithame",artist:"Thaman",album:"Varisu",genre:"Pop",duration:4,favorite:false,playCount:0},
+  {id:17,title:"Megham Karukatha",artist:"Dhanush",album:"Thiruchitrambalam",genre:"Melody",duration:5,favorite:false,playCount:0},
+  {id:18,title:"Jolly O Gymkhana",artist:"Anirudh",album:"Beast",genre:"Pop",duration:4,favorite:false,playCount:0},
+  {id:19,title:"Appadi Podu",artist:"Vidyasagar",album:"Ghilli",genre:"Rock",duration:4,favorite:false,playCount:0},
+  {id:20,title:"Oo Antava",artist:"DSP",album:"Pushpa",genre:"Pop",duration:4,favorite:false,playCount:0}
+];
+let recentlyPlayed = [];
+function displaySongs(data) {
+  const container = document.getElementById("songList");
+  container.innerHTML = "";
+  data.forEach(song => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h4>${song.title}</h4>
+      <p>${song.artist}</p>
+      <p>${song.album}</p>
+      <p>${song.genre}</p>
+      <button onclick="playSong(${song.id})">Play</button>
+    `;
+    container.appendChild(card);
+  });
+}
+function playSong(id) {
+  const song = songs.find(s => s.id === id);
+  if (!song) return;
+  song.playCount++;
+  document.getElementById("nowPlaying").innerHTML =
+    `<h3>Now Playing: ${song.title} - ${song.artist}</h3>`;
+  recentlyPlayed.unshift(song);
+  recentlyPlayed = recentlyPlayed.slice(0, 5);
+}
+document.getElementById("genreFilter").addEventListener("change", function() {
+  const genre = this.value;
+  const filtered = genre ? songs.filter(s => s.genre === genre) : songs;
+  displaySongs(filtered);
+});
+document.getElementById("artistFilter").addEventListener("change", function() {
+  const artist = this.value;
+  const filtered = artist ? songs.filter(s => s.artist === artist) : songs;
+  displaySongs(filtered);
+});
+document.getElementById("search").addEventListener("input", function() {
+  const value = this.value.toLowerCase();
+  const filtered = songs.filter(s => s.title.toLowerCase().includes(value));
+  displaySongs(filtered);
+});
+displaySongs(songs);
+</script>
+</body>
+</html>
